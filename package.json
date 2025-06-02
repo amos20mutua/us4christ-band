@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "serve .",
+    "build": "echo 'No build step needed — static web app'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -12,4 +13,4 @@
     "serve": "^14.2.1"
   },
   "type": "module"
-} 
+}

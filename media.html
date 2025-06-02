@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media - U4C Band</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar-nav" id="sidebarNav" aria-label="Main Navigation">
+        <div class="sidebar-header">
+            <a href="index.html">
+                <img src="./logo.jpg" alt="U4C Band Logo" class="logo" width="60" height="60" />
+            </a>
+        </div>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-item" aria-label="Home">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+            <a href="media.html" class="nav-item active" aria-label="Music">
+                <i class="fas fa-music"></i>
+                <span>Music</span>
+            </a>
+            <a href="gallery.html" class="nav-item" aria-label="Gallery">
+                <i class="fas fa-images"></i>
+                <span>Gallery</span>
+            </a>
+            <a href="merch.html" class="nav-item" aria-label="Merchandise">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Merchandise</span>
+            </a>
+            <a href="how.html" class="nav-item" aria-label="How">
+                <i class="fas fa-question-circle"></i>
+                <span>How</span>
+            </a>
+            <a href="auditions.html" class="nav-item auditions-link hidden" aria-label="Join Us">
+                <i class="fas fa-user-plus"></i>
+                <span>Join Us</span>
+            </a>
+        </nav>
+    </aside>
+    <!-- Hamburger for mobile -->
+    <button class="sidebar-hamburger" id="sidebarHamburger" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebarNav">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+    </button>
+
+    <!-- Media Section -->
+    <section class="media-content">
+        <div class="container">
+            <h1>Our Music</h1>
+            <div class="music-grid" id="musicGrid">
+                <!-- Songs will be loaded here dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section about">
+                    <p>Us For Christ Band - Perceiving, Concieving, Feeling, Sourcing and dispensing Christ through music</p>
+                </div>
+                <div class="footer-section contact">
+                    <h3>Contact Us</h3>
+                    <div class="contact-info">
+                        <a href="mailto:mutuaamos35@gmail.com">
+                            <i class="fas fa-envelope"></i>
+                            <span>mutuaamos35@gmail.com</span>
+                        </a>
+                        <a href="https://wa.me/254105255479" target="_blank" rel="noopener">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>+254 105 255 479</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-section social">
+                    <h3>Connect With Us</h3>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook" rel="noopener"><i class="fab fa-facebook"></i></a>
+                        <a href="#" aria-label="Instagram" rel="noopener"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube" rel="noopener"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="Spotify" rel="noopener"><i class="fab fa-spotify"></i></a>
+                        <a href="#" aria-label="Join WhatsApp Group" rel="noopener"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Us For Christ Band. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Sticky Bottom Navigation for Mobile -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item" aria-label="Home">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+        <a href="media.html" class="bottom-nav-item active" aria-label="Music">
+            <i class="fas fa-music"></i>
+            <span>Music</span>
+        </a>
+        <a href="gallery.html" class="bottom-nav-item" aria-label="Gallery">
+            <i class="fas fa-images"></i>
+            <span>Gallery</span>
+        </a>
+        <a href="merch.html" class="bottom-nav-item" aria-label="Merch">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Merch</span>
+        </a>
+        <a href="how.html" class="bottom-nav-item" aria-label="More">
+            <i class="fas fa-ellipsis-h"></i>
+            <span>More</span>
+        </a>
+    </nav>
+
+    <script src="script.js" type="module" defer></script>
+</body>
+</html>

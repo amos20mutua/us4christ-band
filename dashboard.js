@@ -80,6 +80,9 @@ async function initDashboard() {
                 // Setup real-time listeners
                 setupRealtimeListeners();
                 
+                // Load settings
+                await loadSettings();
+                
                 console.log('Dashboard initialized successfully');
             } catch (error) {
                 console.error('Error during dashboard initialization:', error);
@@ -259,6 +262,14 @@ function setupEventListeners() {
                     console.error('Error saving website content:', error);
                     showNotification('Error saving website content', 'error');
                 }
+            });
+        }
+
+        // Auditions toggle
+        const auditionsToggle = document.getElementById('auditionsToggle');
+        if (auditionsToggle) {
+            auditionsToggle.addEventListener('change', (e) => {
+                toggleAuditions(e.target.checked);
             });
         }
 
@@ -593,7 +604,7 @@ async function getStatistics() {
         console.log('Fetching statistics...');
         
         const [songsSnapshot, eventsSnapshot, ordersSnapshot, auditionsSnapshot] = await Promise.all([
-            getDocs(collection(db, 'music')),
+            getDocs(collection(db, 'songs')),
             getDocs(collection(db, 'events')),
             getDocs(collection(db, 'orders')),
             getDocs(collection(db, 'auditions'))
@@ -822,282 +833,6 @@ function showNotification(message, type = 'info') {
     }
 }
 
-// Form Submission Handlers
-async function handleAddMusic(event) {
-    event.preventDefault();
-    try {
-        console.log('Handling music submission...');
-        
-        const form = event.target;
-        const audioFile = form.querySelector('#audioFile').files[0];
-        
-        if (!audioFile) {
-            throw new Error('Please select an audio file');
-        }
-        
-        // Show loading state
-        const submitBtn = form.querySelector('button[type="submit"]');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-        
-        // Upload audio file
-        const storageRef = ref(storage, `music/${Date.now()}_${audioFile.name}`);
-        const uploadTask = uploadBytesResumable(storageRef, audioFile);
-        
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('Upload progress:', progress);
-            },
-            (error) => {
-                throw error;
-            },
-            async () => {
-                try {
-                    // Get download URL
-                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                    
-                    // Add to Firestore
-                    const musicData = {
-                        title: form.querySelector('#title').value,
-                        artist: form.querySelector('#artist').value,
-                        genre: form.querySelector('#genre').value,
-                        audioUrl: downloadURL,
-                        uploadDate: Timestamp.now()
-                    };
-                    
-                    await addDoc(collection(db, 'music'), musicData);
-                    
-                    // Add to activity
-                    await addDoc(collection(db, 'activity'), {
-                        type: 'music',
-                        description: `New song "${musicData.title}" added`,
-                        timestamp: Timestamp.now()
-                    });
-                    
-                    // Reset form and close modal
-                    form.reset();
-                    modal.classList.remove('active');
-                    showNotification('Song added successfully', 'success');
-                    
-                    // Refresh music data
-                    await loadMusicData();
-                } catch (error) {
-                    throw error;
-                }
-            }
-        );
-    } catch (error) {
-        console.error('Error adding music:', error);
-        showNotification(error.message || 'Error adding song', 'error');
-    } finally {
-        // Reset button state
-        const submitBtn = event.target.querySelector('button[type="submit"]');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Add Song';
-    }
-}
-
-async function handleAddEvent(event) {
-    event.preventDefault();
-    try {
-        console.log('Handling event submission...');
-        
-        const form = event.target;
-        const eventData = {
-            title: form.querySelector('input[name="title"]').value,
-            date: Timestamp.fromDate(new Date(form.querySelector('input[name="date"]').value)),
-            location: form.querySelector('input[name="location"]').value,
-            description: form.querySelector('textarea[name="description"]').value,
-            ticketPrice: parseFloat(form.querySelector('input[name="ticketPrice"]').value) || 0,
-            ticketUrl: form.querySelector('input[name="ticketUrl"]').value,
-            createdAt: Timestamp.now()
-        };
-        
-        // Add to Firestore
-        await addDoc(collection(db, 'events'), eventData);
-        
-        // Add to activity
-        await addDoc(collection(db, 'activity'), {
-            type: 'event',
-            description: `New event "${eventData.title}" added`,
-            timestamp: Timestamp.now()
-        });
-        
-        // Reset form and close modal
-        form.reset();
-        modal.classList.remove('active');
-        showNotification('Event added successfully', 'success');
-        
-        // Refresh dashboard data
-        await loadDashboardData();
-    } catch (error) {
-        console.error('Error adding event:', error);
-        showNotification(error.message || 'Error adding event', 'error');
-    }
-}
-
-async function handleAddProduct(event) {
-    event.preventDefault();
-    try {
-        console.log('Handling product submission...');
-        
-        const form = event.target;
-        const imageFile = form.querySelector('input[type="file"]').files[0];
-        
-        if (!imageFile) {
-            throw new Error('Please select a product image');
-        }
-        
-        // Show loading state
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-        
-        // Upload image
-        const storageRef = ref(storage, `products/${Date.now()}_${imageFile.name}`);
-        const uploadTask = uploadBytesResumable(storageRef, imageFile);
-        
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('Upload progress:', progress);
-            },
-            (error) => {
-                throw error;
-            },
-            async () => {
-                try {
-                    // Get download URL
-                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                    
-                    // Add to Firestore
-                    const productData = {
-                        name: form.querySelector('input[name="name"]').value,
-                        description: form.querySelector('textarea[name="description"]').value,
-                        price: parseFloat(form.querySelector('input[name="price"]').value),
-                        imageUrl: downloadURL,
-                        stock: parseInt(form.querySelector('input[name="stock"]').value) || 0,
-                        createdAt: Timestamp.now()
-                    };
-                    
-                    await addDoc(collection(db, 'products'), productData);
-                    
-                    // Add to activity
-                    await addDoc(collection(db, 'activity'), {
-                        type: 'store',
-                        description: `New product "${productData.name}" added`,
-                        timestamp: Timestamp.now()
-                    });
-                    
-                    // Reset form and close modal
-                    form.reset();
-                    modal.classList.remove('active');
-                    showNotification('Product added successfully', 'success');
-                    
-                    // Refresh dashboard data
-                    await loadDashboardData();
-                } catch (error) {
-                    throw error;
-                }
-            }
-        );
-    } catch (error) {
-        console.error('Error adding product:', error);
-        showNotification(error.message || 'Error adding product', 'error');
-    } finally {
-        // Reset button state
-        const submitBtn = event.target.querySelector('button[type="submit"]');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Add Product';
-    }
-}
-
-async function handleAddGallery(event) {
-    event.preventDefault();
-    try {
-        console.log('Handling gallery submission...');
-        
-        const form = event.target;
-        const mediaFiles = form.querySelector('input[type="file"]').files;
-        
-        if (mediaFiles.length === 0) {
-            throw new Error('Please select at least one media file');
-        }
-        
-        // Show loading state
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-        
-        const uploadPromises = Array.from(mediaFiles).map(async (file) => {
-            // Upload file
-            const storageRef = ref(storage, `gallery/${Date.now()}_${file.name}`);
-            const uploadTask = uploadBytesResumable(storageRef, file);
-            
-            return new Promise((resolve, reject) => {
-                uploadTask.on('state_changed',
-                    (snapshot) => {
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        console.log('Upload progress:', progress);
-                    },
-                    (error) => reject(error),
-                    async () => {
-                        try {
-                            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                            resolve({
-                                url: downloadURL,
-                                type: file.type.startsWith('image/') ? 'image' : 'video',
-                                name: file.name
-                            });
-                        } catch (error) {
-                            reject(error);
-                        }
-                    }
-                );
-            });
-        });
-        
-        // Wait for all uploads to complete
-        const mediaItems = await Promise.all(uploadPromises);
-        
-        // Add to Firestore
-        const galleryData = {
-            title: form.querySelector('input[name="title"]').value,
-            description: form.querySelector('textarea[name="description"]').value,
-            media: mediaItems,
-            createdAt: Timestamp.now()
-        };
-        
-        await addDoc(collection(db, 'gallery'), galleryData);
-        
-        // Add to activity
-        await addDoc(collection(db, 'activity'), {
-            type: 'gallery',
-            description: `New gallery "${galleryData.title}" added with ${mediaItems.length} items`,
-            timestamp: Timestamp.now()
-        });
-        
-        // Reset form and close modal
-        form.reset();
-        modal.classList.remove('active');
-        showNotification('Gallery items added successfully', 'success');
-        
-        // Refresh dashboard data
-        await loadDashboardData();
-    } catch (error) {
-        console.error('Error adding gallery items:', error);
-        showNotification(error.message || 'Error adding gallery items', 'error');
-    } finally {
-        // Reset button state
-        const submitBtn = event.target.querySelector('button[type="submit"]');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Add Gallery Items';
-    }
-}
-
 // Modal Functions
 function showAddMusicModal() {
     try {
@@ -1117,6 +852,11 @@ function showAddMusicModal() {
                 <div class="form-group">
                     <label for="genre">Genre</label>
                     <input type="text" id="genre" name="genre" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="coverImage">Cover Image</label>
+                    <input type="file" id="coverImage" name="coverImage" class="form-control" accept="image/*" required>
+                    <small>Recommended size: 500x500px, Max size: 2MB</small>
                 </div>
                 <div class="form-group">
                     <label for="audioFile">Audio File</label>
@@ -1308,7 +1048,7 @@ async function loadSectionData(sectionId) {
 async function loadMusicData() {
     try {
         console.log('Loading music data...');
-        const musicRef = collection(db, 'music');
+        const musicRef = collection(db, 'songs');
         const q = query(musicRef, orderBy('uploadDate', 'desc'));
         const snapshot = await getDocs(q);
         
@@ -1334,7 +1074,10 @@ async function loadMusicData() {
             return `
                 <div class="list-item" data-id="${doc.id}">
                     <div class="list-item-image">
-                        <i class="fas fa-music"></i>
+                        ${data.coverUrl ? 
+                            `<img src="${data.coverUrl}" alt="${data.title}" class="cover-image">` :
+                            `<i class="fas fa-music"></i>`
+                        }
                     </div>
                     <div class="list-item-content">
                         <h4 class="list-item-title">${data.title}</h4>
@@ -1366,7 +1109,7 @@ async function loadMusicData() {
 // Music Control Functions
 async function playMusic(musicId) {
     try {
-        const musicRef = doc(db, 'music', musicId);
+        const musicRef = doc(db, 'songs', musicId);
         const musicDoc = await getDoc(musicRef);
         
         if (!musicDoc.exists()) {
@@ -1399,7 +1142,7 @@ async function playMusic(musicId) {
 
 async function editMusic(musicId) {
     try {
-        const musicRef = doc(db, 'music', musicId);
+        const musicRef = doc(db, 'songs', musicId);
         const musicDoc = await getDoc(musicRef);
         
         if (!musicDoc.exists()) {
@@ -1445,7 +1188,7 @@ async function deleteMusic(musicId) {
             return;
         }
         
-        const musicRef = doc(db, 'music', musicId);
+        const musicRef = doc(db, 'songs', musicId);
         const musicDoc = await getDoc(musicRef);
         
         if (!musicDoc.exists()) {
@@ -1487,7 +1230,7 @@ async function handleEditMusic(event, musicId) {
         let audioUrl = null;
         if (audioFile) {
             // Upload new audio file
-            const storageRef = ref(storage, `music/${Date.now()}_${audioFile.name}`);
+            const storageRef = ref(storage, `songs/${Date.now()}_${audioFile.name}`);
             const uploadTask = uploadBytesResumable(storageRef, audioFile);
             
             await new Promise((resolve, reject) => {
@@ -1510,7 +1253,7 @@ async function handleEditMusic(event, musicId) {
         }
         
         // Update Firestore document
-        const musicRef = doc(db, 'music', musicId);
+        const musicRef = doc(db, 'songs', musicId);
         const updateData = {
             title: form.querySelector('#title').value,
             artist: form.querySelector('#artist').value,
@@ -1582,42 +1325,66 @@ async function loadEventsData() {
 async function loadGalleryData() {
     try {
         console.log('Loading gallery data...');
+        const galleryGrid = document.getElementById('galleryGrid');
+        if (!galleryGrid) return;
+
+        // Show loading state
+        galleryGrid.innerHTML = '<div class="loading">Loading gallery items...</div>';
+        
         const galleryRef = collection(db, 'gallery');
         const q = query(galleryRef, orderBy('createdAt', 'desc'));
         const snapshot = await getDocs(q);
         
-        const galleryGrid = document.getElementById('galleryGrid');
-        if (!galleryGrid) return;
-        
-        galleryGrid.innerHTML = snapshot.docs.map(doc => {
+        if (snapshot.empty) {
+            galleryGrid.innerHTML = '<p class="no-content">No gallery items available.</p>';
+            return;
+        }
+
+        const galleryItems = [];
+        snapshot.forEach(doc => {
             const data = doc.data();
-            const firstMedia = data.media[0];
-            return `
-                <div class="grid-item">
-                    <img src="${firstMedia.url}" alt="${data.title}" class="grid-item-image">
-                    <div class="grid-item-content">
-                        <h4 class="grid-item-title">${data.title}</h4>
-                        <p class="grid-item-subtitle">${data.media.length} items</p>
-                    </div>
-                    <div class="list-item-actions">
-                        <button class="action-btn" onclick="viewGallery('${doc.id}')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="action-btn" onclick="editGallery('${doc.id}')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn" onclick="deleteGallery('${doc.id}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
+            if (data.media && data.media.length > 0) {
+                galleryItems.push({
+                    id: doc.id,
+                    ...data,
+                    firstMedia: data.media[0]
+                });
+            }
+        });
+
+        if (galleryItems.length === 0) {
+            galleryGrid.innerHTML = '<p class="no-content">No gallery items available.</p>';
+            return;
+        }
+
+        galleryGrid.innerHTML = galleryItems.map(item => `
+            <div class="grid-item" data-id="${item.id}">
+                <img src="${item.firstMedia.url}" alt="${item.title}" class="grid-item-image">
+                <div class="grid-item-content">
+                    <h4 class="grid-item-title">${item.title}</h4>
+                    <p class="grid-item-subtitle">${item.media.length} items</p>
                 </div>
-            `;
-        }).join('');
+                <div class="list-item-actions">
+                    <button class="action-btn" onclick="viewGallery('${item.id}')" title="View">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="action-btn" onclick="editGallery('${item.id}')" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-btn" onclick="deleteGallery('${item.id}')" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
         
         console.log('Gallery data loaded successfully');
     } catch (error) {
         console.error('Error loading gallery data:', error);
-        throw error;
+        const galleryGrid = document.getElementById('galleryGrid');
+        if (galleryGrid) {
+            galleryGrid.innerHTML = '<p class="error">Error loading gallery items. Please try again.</p>';
+        }
     }
 }
 
@@ -1977,4 +1744,37 @@ window.editMusic = editMusic;
 window.deleteMusic = deleteMusic;
 window.handleEditMusic = handleEditMusic;
 window.showAddMusicModal = showAddMusicModal;
-window.handleAddMusic = handleAddMusic; 
+window.handleAddMusic = handleAddMusic;
+
+async function toggleAuditions(enabled) {
+    try {
+        const settingsRef = doc(db, 'settings', 'main');
+        await updateDoc(settingsRef, {
+            auditionsEnabled: enabled
+        });
+        
+        showNotification(`Auditions ${enabled ? 'enabled' : 'disabled'} successfully`, 'success');
+    } catch (error) {
+        console.error('Error toggling auditions:', error);
+        showNotification('Error updating auditions status', 'error');
+    }
+}
+
+// Load settings when dashboard loads
+async function loadSettings() {
+    try {
+        const settingsDoc = await getDoc(doc(db, 'settings', 'main'));
+        if (settingsDoc.exists()) {
+            const settings = settingsDoc.data();
+            
+            // Update auditions toggle
+            const auditionsToggle = document.getElementById('auditionsToggle');
+            if (auditionsToggle) {
+                auditionsToggle.checked = settings.auditionsEnabled || false;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading settings:', error);
+        showNotification('Error loading settings', 'error');
+    }
+} 

@@ -6,6 +6,7 @@ import {
     addAuditionRequest,
     getEvents
 } from './firebase-service.js';
+import { db, auth, storage } from './firebase-config.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
@@ -133,36 +134,46 @@ async function loadSiteSettings() {
 
 // Load Hero Content
 async function loadHeroContent() {
-    const heroContent = document.getElementById('heroContent');
-    if (!heroContent) return;
+    try {
+        const settings = await getSettings();
+        const heroVideo = document.getElementById('hero-video');
+        const heroTitle = document.querySelector('.hero-content h1');
+        const heroTagline = document.querySelector('.hero-content .tagline');
 
-    // Video background controls
-    const heroVideo = document.getElementById('hero-video');
-    const muteBtn = document.getElementById('muteBtn');
-    let isMuted = true;
+        if (settings.heroVideo && heroVideo) {
+            const mp4Source = heroVideo.querySelector('source[type="video/mp4"]');
+            const webmSource = heroVideo.querySelector('source[type="video/webm"]');
+            
+            if (mp4Source) {
+                mp4Source.src = settings.heroVideo.mp4Url || '';
+            }
+            if (webmSource) {
+                webmSource.src = settings.heroVideo.webmUrl || '';
+            }
 
-    if (heroVideo && muteBtn) {
-        // Mute toggle
-        muteBtn.addEventListener('click', () => {
-            isMuted = !isMuted;
-            heroVideo.muted = isMuted;
-            muteBtn.innerHTML = isMuted ? 
-                '<i class="fas fa-volume-mute"></i>' : 
-                '<i class="fas fa-volume-up"></i>';
-            muteBtn.setAttribute('aria-label', isMuted ? 'Unmute video' : 'Mute video');
-        });
+            // Only load if at least one source is available
+            if (settings.heroVideo.mp4Url || settings.heroVideo.webmUrl) {
+                heroVideo.load();
+            } else {
+                // Hide video if no sources available
+                heroVideo.style.display = 'none';
+            }
+        }
 
-        // Video loading optimization
-        heroVideo.addEventListener('loadeddata', () => {
-            heroVideo.style.opacity = '1';
-        });
+        if (settings.heroTitle && heroTitle) {
+            heroTitle.textContent = settings.heroTitle;
+        }
 
-        // Fallback for video loading
-        heroVideo.addEventListener('error', () => {
-            console.error('Error loading video');
+        if (settings.heroTagline && heroTagline) {
+            heroTagline.textContent = settings.heroTagline;
+        }
+    } catch (error) {
+        console.error('Error loading hero content:', error);
+        // Hide video on error
+        const heroVideo = document.getElementById('hero-video');
+        if (heroVideo) {
             heroVideo.style.display = 'none';
-            document.querySelector('.overlay').style.background = 'var(--gradient-overlay)';
-        });
+        }
     }
 }
 
@@ -206,6 +217,9 @@ async function loadGalleryContent() {
     const galleryGrid = document.querySelector('.gallery-grid');
     if (!galleryGrid) return;
 
+    // Show loading state
+    galleryGrid.innerHTML = '<div class="loading">Loading gallery...</div>';
+
     try {
         const images = await getGalleryImages();
         if (images.length === 0) {
@@ -215,17 +229,64 @@ async function loadGalleryContent() {
 
         galleryGrid.innerHTML = images.map(image => `
             <div class="gallery-item">
-                <img src="${image.url}" alt="${image.title}">
+                <img src="${image.url}" alt="${image.title}" loading="lazy">
                 <div class="gallery-caption">
                     <h3>${image.title}</h3>
-                    <p>${image.description || ''}</p>
+                    ${image.description ? `<p>${image.description}</p>` : ''}
                 </div>
             </div>
         `).join('');
+
+        // Initialize lightbox for gallery items
+        initializeGalleryLightbox();
     } catch (error) {
         console.error('Error loading gallery:', error);
         galleryGrid.innerHTML = '<p class="error">Error loading gallery. Please try again later.</p>';
     }
+}
+
+// Initialize lightbox for gallery items
+function initializeGalleryLightbox() {
+    document.querySelectorAll('.gallery-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            const img = item.querySelector('img');
+            const title = item.querySelector('h3').textContent;
+            const description = item.querySelector('p')?.textContent || '';
+            
+            // Prevent default behavior
+            e.preventDefault();
+            
+            // Create lightbox
+            const lightbox = document.createElement('div');
+            lightbox.className = 'lightbox';
+            lightbox.innerHTML = `
+                <div class="lightbox-content">
+                    <img src="${img.src}" alt="${img.alt}">
+                    <div class="lightbox-caption">
+                        <h3>${title}</h3>
+                        ${description ? `<p>${description}</p>` : ''}
+                    </div>
+                    <button class="lightbox-close" aria-label="Close">&times;</button>
+                </div>
+            `;
+            
+            // Add close functionality
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox || e.target.className === 'lightbox-close') {
+                    lightbox.remove();
+                }
+            });
+            
+            // Add escape key functionality
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    lightbox.remove();
+                }
+            });
+            
+            document.body.appendChild(lightbox);
+        });
+    });
 }
 
 // Load Merchandise Content
@@ -269,11 +330,27 @@ async function loadMerchandiseContent() {
 }
 
 // Handle Auditions Visibility
-function handleAuditionsVisibility() {
-    const auditionsLink = document.querySelector('.auditions-link');
-    if (auditionsLink) {
-        const isEnabled = localStorage.getItem('auditionsEnabled') === 'true';
-        auditionsLink.style.display = isEnabled ? 'inline-block' : 'none';
+async function handleAuditionsVisibility() {
+    try {
+        const settings = await getSettings();
+        const auditionLinks = document.querySelectorAll('.auditions-link');
+        const auditionSection = document.querySelector('.audition-section');
+        
+        // Update all audition links in the navigation
+        auditionLinks.forEach(link => {
+            if (settings.auditionsEnabled) {
+                link.classList.remove('hidden');
+            } else {
+                link.classList.add('hidden');
+            }
+        });
+        
+        // Update audition section if it exists
+        if (auditionSection) {
+            auditionSection.style.display = settings.auditionsEnabled ? 'block' : 'none';
+        }
+    } catch (error) {
+        console.error('Error handling auditions visibility:', error);
     }
 }
 
@@ -426,12 +503,12 @@ async function loadLatestRelease() {
 // Initialize page content
 document.addEventListener('DOMContentLoaded', async () => {
     await loadSiteSettings();
+    await handleAuditionsVisibility();
     await loadLatestRelease();
     await loadHeroContent();
     await loadMusicContent();
     await loadGalleryContent();
     await loadMerchandiseContent();
-    handleAuditionsVisibility();
 });
 
 // Intersection Observer for fade-in animations
@@ -1035,57 +1112,26 @@ document.addEventListener('DOMContentLoaded', () => {
     loadWebsiteContent();
 });
 
-// Hamburger menu for mobile navigation
-function setupHamburgerMenu() {
-    const hamburger = document.getElementById('hamburgerBtn');
-    const mainNav = document.getElementById('mainNav');
-    if (!hamburger || !mainNav) return;
+// Add click event to fixed logo for mobile sidebar toggle
+document.querySelector('.fixed-logo').addEventListener('click', function(e) {
+    if (window.innerWidth <= 768) {
+        const sidebar = document.getElementById('sidebarNav');
+        sidebar.classList.toggle('active');
+        document.body.classList.toggle('sidebar-open');
+    }
+});
 
-    hamburger.addEventListener('click', function(e) {
-        e.stopPropagation();
-        hamburger.classList.toggle('active');
-        mainNav.classList.toggle('active');
-        const expanded = hamburger.classList.contains('active');
-        hamburger.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-        document.body.style.overflow = expanded ? 'hidden' : '';
-    });
-
-    // Close menu when clicking a nav link
-    mainNav.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', function() {
-            hamburger.classList.remove('active');
-            mainNav.classList.remove('active');
-            hamburger.setAttribute('aria-expanded', 'false');
-            document.body.style.overflow = '';
-        });
-    });
-
-    // Close menu when clicking outside
-    document.addEventListener('click', function(e) {
-        if (mainNav.classList.contains('active') &&
-            !mainNav.contains(e.target) &&
-            !hamburger.contains(e.target)) {
-            hamburger.classList.remove('active');
-            mainNav.classList.remove('active');
-            hamburger.setAttribute('aria-expanded', 'false');
-            document.body.style.overflow = '';
+// Close sidebar when clicking outside
+document.addEventListener('click', function(e) {
+    if (window.innerWidth <= 768) {
+        const sidebar = document.getElementById('sidebarNav');
+        const fixedLogo = document.querySelector('.fixed-logo');
+        
+        if (!sidebar.contains(e.target) && !fixedLogo.contains(e.target) && sidebar.classList.contains('active')) {
+            sidebar.classList.remove('active');
+            document.body.classList.remove('sidebar-open');
         }
-    });
-
-    // Close menu on Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && mainNav.classList.contains('active')) {
-            hamburger.classList.remove('active');
-            mainNav.classList.remove('active');
-            hamburger.setAttribute('aria-expanded', 'false');
-            document.body.style.overflow = '';
-        }
-    });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    setupHamburgerMenu();
-    // ... existing code ...
+    }
 });
 
 // Sidebar navigation toggle for mobile

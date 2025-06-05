@@ -9,46 +9,97 @@
     <link rel="icon" href="logo.jpg" type="image/jpeg">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-brand">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar-nav" id="sidebarNav" aria-label="Main Navigation">
+        <div class="sidebar-header">
             <a href="index.html">
-                <img src="./logo.jpg" alt="U4C Band Logo" class="logo" loading="eager" width="75" height="75" decoding="async" />
+                <img src="./logo.jpg" alt="U4C Band Logo" class="logo" width="45" height="45" />
             </a>
         </div>
-        <div class="main-nav">
-            <a href="index.html">Home</a>
-            <a href="media.html">Music</a>
-            <a href="gallery.html">Gallery</a>
-            <a href="merch.html">Merchandise</a>
-            <a href="how.html">How</a>
-            <a href="auditions.html" class="active">Join Us</a>
-        </div>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-item" aria-label="Home">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+            <a href="media.html" class="nav-item" aria-label="Music">
+                <i class="fas fa-music"></i>
+                <span>Music</span>
+            </a>
+            <a href="events.html" class="nav-item" aria-label="Events">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Events</span>
+            </a>
+            <a href="gallery.html" class="nav-item" aria-label="Gallery">
+                <i class="fas fa-images"></i>
+                <span>Gallery</span>
+            </a>
+            <a href="merch.html" class="nav-item" aria-label="Merch">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Merch</span>
+            </a>
+            <a href="how.html" class="nav-item" aria-label="How">
+                <i class="fas fa-question-circle"></i>
+                <span>How</span>
+            </a>
+            <a href="auditions.html" class="nav-item auditions-link hidden active" aria-label="Join Us">
+                <i class="fas fa-user-plus"></i>
+                <span>Join Us</span>
+            </a>
     </nav>
+    </aside>
 
-    <!-- Left Sidebar Navigation -->
-    <div class="left-sidebar">
-        <div class="sidebar-links">
-            <a href="index.html" aria-label="Home"><i class="fa-solid fa-house"></i></a>
-            <a href="media.html" aria-label="Music"><i class="fas fa-music"></i></a>
-            <a href="gallery.html" aria-label="Gallery"><i class="fas fa-images"></i></a>
-            <a href="merch.html" aria-label="Merchandise"><i class="fas fa-shopping-bag"></i></a>
-            <a href="how.html" aria-label="How"><i class="fas fa-question-circle"></i></a>
-            <a href="auditions.html" class="active" aria-label="Join Us"><i class="fas fa-user-plus"></i></a>
-        </div>
-    </div>
+    <!-- Hamburger for mobile -->
+    <button class="sidebar-hamburger" id="sidebarHamburger" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebarNav">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+    </button>
 
     <!-- Page Header -->
     <header class="page-header">
-        <h1>Join Our Band</h1>
+        <h1>Join Our Team</h1>
+        <p>Be part of our worship ministry</p>
     </header>
 
     <!-- Auditions Content -->
     <section class="auditions-content">
         <div class="container">
-            <div class="auditions-grid">
-                <!-- Content will be loaded dynamically -->
-                <div class="loading">Loading content...</div>
+            <div class="auditions-info">
+                <h2>What We're Looking For</h2>
+                <ul>
+                    <li>Passionate worshippers with a heart for ministry</li>
+                    <li>Skilled musicians and vocalists</li>
+                    <li>Team players who can commit to regular rehearsals</li>
+                    <li>Those who align with our vision and values</li>
+                </ul>
+            </div>
+
+            <div class="audition-form">
+                <h2>Apply to Join</h2>
+                <form id="auditionForm">
+                    <input type="text" name="name" placeholder="Your Name" required>
+                    <input type="email" name="email" placeholder="Your Email" required>
+                    <input type="tel" name="phone" placeholder="Phone Number" required>
+                    <select name="instrument" required>
+                        <option value="">Select Your Instrument/Role</option>
+                        <option value="vocals">Vocals</option>
+                        <option value="guitar">Guitar</option>
+                        <option value="keyboard">Keyboard</option>
+                        <option value="drums">Drums</option>
+                        <option value="bass">Bass</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <textarea name="experience" placeholder="Tell us about your musical experience" required></textarea>
+                    <div class="file-upload-container">
+                        <input type="file" id="audioFile" name="audioFile" accept="audio/*,video/*">
+                        <div class="file-upload-info">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Upload a demo recording</span>
+                            <small>Drag and drop or click to select</small>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-button">Submit Application</button>
+                </form>
             </div>
         </div>
     </section>
@@ -91,6 +142,31 @@
             </div>
         </div>
     </footer>
+
+    <!-- Sticky Bottom Navigation for Mobile -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item" aria-label="Home">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+        <a href="media.html" class="bottom-nav-item" aria-label="Music">
+            <i class="fas fa-music"></i>
+            <span>Music</span>
+        </a>
+        <a href="gallery.html" class="bottom-nav-item" aria-label="Gallery">
+            <i class="fas fa-images"></i>
+            <span>Gallery</span>
+        </a>
+        <a href="merch.html" class="bottom-nav-item" aria-label="Merch">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Merch</span>
+        </a>
+        <a href="how.html" class="bottom-nav-item" aria-label="More">
+            <i class="fas fa-ellipsis-h"></i>
+            <span>More</span>
+        </a>
+    </nav>
+
     <script src="script.js" type="module" defer></script>
 </body>
 </html> 

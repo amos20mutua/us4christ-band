@@ -1,25 +1,45 @@
 // Import Firebase configuration
 import { auth } from './firebase-config.js';
-import { signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
 // DOM Elements
 const loginForm = document.getElementById('loginForm');
 const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
+const rememberMeCheckbox = document.getElementById('rememberMe');
+const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+const errorMessage = document.getElementById('errorMessage');
 const loginBtn = document.getElementById('loginBtn');
 const loadingSpinner = loginBtn.querySelector('.loading');
 
-// Show notification
-function showNotification(message, type = 'error') {
-    const notification = document.getElementById('notification');
-    notification.textContent = message;
-    notification.className = `notification ${type}`;
-    notification.style.display = 'block';
-
+// Show error message
+function showError(message) {
+    errorMessage.textContent = message;
+    errorMessage.style.display = 'block';
     setTimeout(() => {
-        notification.style.display = 'none';
-    }, 3000);
+        errorMessage.style.display = 'none';
+    }, 5000);
 }
+
+// Handle forgot password
+forgotPasswordLink.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = emailInput.value.trim();
+    
+    if (!email) {
+        showError('Please enter your email address');
+        return;
+    }
+    
+    try {
+        await sendPasswordResetEmail(auth, email);
+        showError('Password reset email sent! Please check your inbox.');
+        errorMessage.style.color = 'var(--success-color)';
+    } catch (error) {
+        console.error('Error sending password reset email:', error);
+        showError('Error sending password reset email. Please try again.');
+    }
+});
 
 // Handle login form submission
 loginForm.addEventListener('submit', async (e) => {
@@ -28,14 +48,18 @@ loginForm.addEventListener('submit', async (e) => {
     // Get form values
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
+    const rememberMe = rememberMeCheckbox.checked;
     
     // Validate inputs
     if (!email || !password) {
-        showNotification('Please fill in all fields');
+        showError('Please fill in all fields');
         return;
     }
     
     try {
+        // Set persistence based on Remember Me checkbox
+        await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
+        
         // Show loading state
         loginBtn.disabled = true;
         loadingSpinner.classList.add('active');
@@ -53,7 +77,7 @@ loginForm.addEventListener('submit', async (e) => {
         }
         
         // Show success message
-        showNotification('Login successful! Redirecting...', 'success');
+        showError('Login successful! Redirecting...');
         
         // Redirect to dashboard
         setTimeout(() => {
@@ -62,30 +86,24 @@ loginForm.addEventListener('submit', async (e) => {
         
     } catch (error) {
         console.error('Login error:', error);
-        
-        // Handle specific error cases
-        let errorMessage = 'An error occurred during login';
+        let errorMessage = 'Login failed. Please try again.';
         
         switch (error.code) {
             case 'auth/invalid-email':
-                errorMessage = 'Invalid email address';
+                errorMessage = 'Invalid email address.';
                 break;
             case 'auth/user-disabled':
-                errorMessage = 'This account has been disabled';
+                errorMessage = 'This account has been disabled.';
                 break;
             case 'auth/user-not-found':
-                errorMessage = 'No account found with this email';
+                errorMessage = 'No account found with this email.';
                 break;
             case 'auth/wrong-password':
-                errorMessage = 'Incorrect password';
-                break;
-            case 'auth/too-many-requests':
-                errorMessage = 'Too many failed attempts. Please try again later';
+                errorMessage = 'Incorrect password.';
                 break;
         }
         
-        showNotification(errorMessage);
-        
+        showError(errorMessage);
     } finally {
         // Reset loading state
         loginBtn.disabled = false;

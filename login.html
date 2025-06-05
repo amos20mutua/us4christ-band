@@ -40,6 +40,13 @@
             align-items: center;
             min-height: 100vh;
             padding: 2rem;
+            margin-left: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
         }
 
         .login-form {
@@ -52,6 +59,7 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             animation: fadeIn 0.5s ease-out;
+            margin: 0 auto;
         }
 
         @keyframes fadeIn {
@@ -171,16 +179,53 @@
         @media (max-width: 480px) {
             .login-container {
                 padding: 1rem;
+                position: fixed;
+                width: 100%;
+                height: 100%;
             }
 
             .login-form {
                 padding: 1.5rem;
+                width: calc(100% - 2rem);
+                margin: 0 auto;
             }
 
             .login-header img {
                 width: 100px;
                 height: 100px;
             }
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .remember {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .remember input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent-color);
+        }
+
+        .forgot-link {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -199,6 +244,13 @@
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" class="form-control" required>
+                </div>
+                <div class="form-group remember-forgot">
+                    <label class="remember">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" id="forgotPasswordLink" class="forgot-link">Forgot password?</a>
                 </div>
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-sign-in-alt"></i>
@@ -236,6 +288,16 @@
             }
         });
 
+        // Handle remember me functionality
+        const rememberMe = document.getElementById('rememberMe');
+        const email = document.getElementById('email');
+
+        // Check if there's a saved email
+        if (localStorage.getItem('adminEmail')) {
+            email.value = localStorage.getItem('adminEmail');
+            rememberMe.checked = true;
+        }
+
         // Handle login form submission
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -243,17 +305,56 @@
             const password = document.getElementById('password').value;
             const errorMessage = document.getElementById('errorMessage');
             const submitButton = e.target.querySelector('button[type="submit"]');
+            const rememberMe = document.getElementById('rememberMe').checked;
 
             try {
                 submitButton.disabled = true;
                 submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+                
+                // Set persistence based on remember me
+                const persistence = rememberMe ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
+                await auth.setPersistence(persistence);
+                
+                // Sign in
                 await auth.signInWithEmailAndPassword(email, password);
+                
+                // Save email if remember me is checked
+                if (rememberMe) {
+                    localStorage.setItem('adminEmail', email);
+                } else {
+                    localStorage.removeItem('adminEmail');
+                }
+                
                 window.location.href = 'dashboard.html';
             } catch (error) {
                 errorMessage.style.display = 'block';
                 errorMessage.textContent = error.message;
                 submitButton.disabled = false;
                 submitButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+            }
+        });
+
+        // Handle forgot password
+        document.getElementById('forgotPasswordLink').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            if (!email) {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'Please enter your email address';
+                return;
+            }
+            
+            try {
+                await auth.sendPasswordResetEmail(email);
+                errorMessage.style.display = 'block';
+                errorMessage.style.backgroundColor = 'rgba(76, 175, 80, 0.1)';
+                errorMessage.style.color = '#4CAF50';
+                errorMessage.textContent = 'Password reset email sent. Please check your inbox.';
+            } catch (error) {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = error.message;
             }
         });
     </script>

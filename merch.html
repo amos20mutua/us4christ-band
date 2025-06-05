@@ -9,34 +9,51 @@
     <link rel="icon" href="logo.jpg" type="image/jpeg">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-brand">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar-nav" id="sidebarNav" aria-label="Main Navigation">
+        <div class="sidebar-header">
             <a href="index.html">
-                <img src="./logo.jpg" alt="U4C Band Logo" class="logo" loading="eager" width="75" height="75" decoding="async" />
+                <img src="./logo.jpg" alt="U4C Band Logo" class="logo" width="45" height="45" />
             </a>
         </div>
-        <div class="main-nav">
-            <a href="index.html">Home</a>
-            <a href="media.html">Music</a>
-            <a href="gallery.html">Gallery</a>
-            <a href="merch.html" class="active">Merchandise</a>
-            <a href="how.html">How</a>
-            <a href="auditions.html" class="auditions-link hidden">Join Us</a>
-        </div>
-    </nav>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-item" aria-label="Home">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+            <a href="media.html" class="nav-item" aria-label="Music">
+                <i class="fas fa-music"></i>
+                <span>Music</span>
+            </a>
+            <a href="events.html" class="nav-item" aria-label="Events">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Events</span>
+            </a>
+            <a href="gallery.html" class="nav-item" aria-label="Gallery">
+                <i class="fas fa-images"></i>
+                <span>Gallery</span>
+            </a>
+            <a href="merch.html" class="nav-item active" aria-label="Merch">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Merch</span>
+            </a>
+            <a href="how.html" class="nav-item" aria-label="How">
+                <i class="fas fa-question-circle"></i>
+                <span>How</span>
+            </a>
+            <a href="auditions.html" class="nav-item auditions-link hidden" aria-label="Join Us">
+                <i class="fas fa-user-plus"></i>
+                <span>Join Us</span>
+            </a>
+        </nav>
+    </aside>
 
-    <!-- Left Sidebar Navigation -->
-    <div class="left-sidebar">
-        <div class="sidebar-links">
-            <a href="index.html" aria-label="Home"><i class="fa-solid fa-house"></i></a>
-            <a href="media.html" aria-label="Music"><i class="fas fa-music"></i></a>
-            <a href="gallery.html" aria-label="Gallery"><i class="fas fa-images"></i></a>
-            <a href="merch.html" class="active" aria-label="Merchandise"><i class="fas fa-shopping-bag"></i></a>
-            <a href="how.html" aria-label="How"><i class="fas fa-question-circle"></i></a>
-            <a href="auditions.html" class="auditions-link hidden" aria-label="Join Us"><i class="fas fa-user-plus"></i></a>
-        </div>
-    </div>
+    <!-- Hamburger for mobile -->
+    <button class="sidebar-hamburger" id="sidebarHamburger" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebarNav">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+    </button>
 
     <!-- Page Header -->
     <header class="page-header">
@@ -91,6 +108,27 @@
             </div>
         </div>
     </footer>
+
+    <!-- Sticky Bottom Navigation for Mobile -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item" aria-label="Home">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+        <a href="media.html" class="bottom-nav-item" aria-label="Music">
+            <i class="fas fa-music"></i>
+            <span>Music</span>
+        </a>
+        <a href="merch.html" class="bottom-nav-item" aria-label="Merch">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Merch</span>
+        </a>
+        <a href="gallery.html" class="bottom-nav-item" aria-label="Gallery">
+            <i class="fas fa-images"></i>
+            <span>Gallery</span>
+        </a>
+    </nav>
+
     <script src="script.js" type="module" defer></script>
 </body>
 </html> 

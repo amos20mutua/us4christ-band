@@ -10,11 +10,18 @@
 
 </head>
 <body>
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <div class="logo-container">
+            <img src="./logo.jpg" alt="U4C Band Logo" class="logo" width="40" height="40" />
+        </div>
+    </header>
+
     <!-- Sidebar Navigation -->
     <aside class="sidebar-nav" id="sidebarNav" aria-label="Main Navigation">
         <div class="sidebar-header">
             <a href="index.html">
-                <img src="./logo.jpg" alt="U4C Band Logo" class="logo" width="60" height="60" />
+                <img src="./logo.jpg" alt="U4C Band Logo" class="logo" width="45" height="45" />
             </a>
         </div>
         <nav class="nav-menu">
@@ -26,13 +33,17 @@
                 <i class="fas fa-music"></i>
                 <span>Music</span>
             </a>
+            <a href="events.html" class="nav-item" aria-label="Events">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Events</span>
+            </a>
             <a href="gallery.html" class="nav-item" aria-label="Gallery">
                 <i class="fas fa-images"></i>
                 <span>Gallery</span>
             </a>
-            <a href="merch.html" class="nav-item" aria-label="Merchandise">
+            <a href="merch.html" class="nav-item" aria-label="Merch">
                 <i class="fas fa-shopping-bag"></i>
-                <span>Merchandise</span>
+                <span>Merch</span>
             </a>
             <a href="how.html" class="nav-item" aria-label="How">
                 <i class="fas fa-question-circle"></i>
@@ -44,6 +55,7 @@
             </a>
         </nav>
     </aside>
+
     <!-- Hamburger for mobile -->
     <button class="sidebar-hamburger" id="sidebarHamburger" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebarNav">
         <span class="bar"></span>
@@ -150,7 +162,6 @@
         </div>
     </section>
 
-
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -200,20 +211,19 @@
             <i class="fas fa-music"></i>
             <span>Music</span>
         </a>
-        <a href="gallery.html" class="bottom-nav-item" aria-label="Gallery">
-            <i class="fas fa-images"></i>
-            <span>Gallery</span>
-        </a>
         <a href="merch.html" class="bottom-nav-item" aria-label="Merch">
             <i class="fas fa-shopping-bag"></i>
             <span>Merch</span>
         </a>
-        <a href="how.html" class="bottom-nav-item" aria-label="More">
-            <i class="fas fa-ellipsis-h"></i>
-            <span>More</span>
+        <a href="gallery.html" class="bottom-nav-item" aria-label="Gallery">
+            <i class="fas fa-images"></i>
+            <span>Gallery</span>
         </a>
     </nav>
 
-    <script src="script.js" type="module" defer></script>
+    <!-- Firebase Scripts -->
+    <script type="module" src="./firebase-config.js"></script>
+    <script type="module" src="./firebase-service.js"></script>
+    <script type="module" src="./script.js"></script>
 </body>
 </html>

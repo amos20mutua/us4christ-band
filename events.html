@@ -6,27 +6,54 @@
     <title>Events - U4C Band</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="logo.jpg" type="image/jpeg">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-brand">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar-nav" id="sidebarNav" aria-label="Main Navigation">
+        <div class="sidebar-header">
             <a href="index.html">
-                <img src="./logo.jpg" alt="U4C Band Logo" class="logo">
+                <img src="./logo.jpg" alt="U4C Band Logo" class="logo" width="45" height="45" />
             </a>
         </div>
-        <button id="hamburgerBtn" class="hamburger-btn" aria-label="Toggle menu">
-            <i class="fas fa-bars"></i>
-        </button>
-        <div id="navMenu" class="nav-links">
-            <a href="index.html"><i class="fa-solid fa-house"></i><span>Home</span></a>
-            <a href="media.html"><i class="fas fa-music"></i><span>Music</span></a>
-            <a href="gallery.html"><i class="fas fa-images"></i><span>Gallery</span></a>
-            <a href="merch.html"><i class="fas fa-shopping-bag"></i><span>Merch</span></a>
-            <a href="how.html"><i class="fas fa-question-circle"></i><span>How</span></a>
-            <a href="auditions.html" class="auditions-link hidden"><i class="fas fa-user-plus"></i><span>Join Us</span></a>
-        </div>
-    </nav>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-item" aria-label="Home">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+            <a href="media.html" class="nav-item" aria-label="Music">
+                <i class="fas fa-music"></i>
+                <span>Music</span>
+            </a>
+            <a href="events.html" class="nav-item active" aria-label="Events">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Events</span>
+            </a>
+            <a href="gallery.html" class="nav-item" aria-label="Gallery">
+                <i class="fas fa-images"></i>
+                <span>Gallery</span>
+            </a>
+            <a href="merch.html" class="nav-item" aria-label="Merch">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Merch</span>
+            </a>
+            <a href="how.html" class="nav-item" aria-label="How">
+                <i class="fas fa-question-circle"></i>
+                <span>How</span>
+            </a>
+            <a href="auditions.html" class="nav-item auditions-link hidden" aria-label="Join Us">
+                <i class="fas fa-user-plus"></i>
+                <span>Join Us</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Hamburger for mobile -->
+    <button class="sidebar-hamburger" id="sidebarHamburger" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebarNav">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+    </button>
 
     <!-- Events Header -->
     <section class="page-header">
@@ -49,27 +76,62 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Contact Us</h3>
-                    <p><i class="fas fa-envelope"></i> mutuaamos35@gmail.com</p>
-                    <p><i class="fas fa-phone"></i> +254 105 255 479</p>
+            <div class="footer-grid">
+                <div class="footer-section about">
+                    <p>Us For Christ Band - Perceiving, Concieving, Feeling, Sourcing and dispensing Christ through music</p>
                 </div>
-                <div class="footer-section">
-                    <h3>Follow Us</h3>
+                
+                <div class="footer-section contact">
+                    <h3>Contact Us</h3>
+                    <div class="contact-info">
+                        <a href="mailto:mutuaamos35@gmail.com">
+                            <i class="fas fa-envelope"></i>
+                            <span>mutuaamos35@gmail.com</span>
+                        </a>
+                        <a href="https://wa.me/254105255479" target="_blank" rel="noopener">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>+254 105 255 479</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="footer-section social">
+                    <h3>Connect With Us</h3>
                     <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="Facebook" rel="noopener"><i class="fab fa-facebook"></i></a>
+                        <a href="#" aria-label="Instagram" rel="noopener"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube" rel="noopener"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="Spotify" rel="noopener"><i class="fab fa-spotify"></i></a>
+                        <a href="#" aria-label="Join WhatsApp Group" rel="noopener"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 U4C Band. All rights reserved.</p>
+                <p>&copy; 2024 Us For Christ Band. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
-    <script type="module" src="script.js"></script>
+    <!-- Sticky Bottom Navigation for Mobile -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item" aria-label="Home">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+        <a href="media.html" class="bottom-nav-item" aria-label="Music">
+            <i class="fas fa-music"></i>
+            <span>Music</span>
+        </a>
+        <a href="merch.html" class="bottom-nav-item" aria-label="Merch">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Merch</span>
+        </a>
+        <a href="gallery.html" class="bottom-nav-item" aria-label="Gallery">
+            <i class="fas fa-images"></i>
+            <span>Gallery</span>
+        </a>
+    </nav>
+
+    <script src="script.js" type="module" defer></script>
 </body>
 </html> 
